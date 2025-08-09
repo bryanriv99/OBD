@@ -324,4 +324,12 @@
    */
   new PureCounter();
 
+  /**
+   * Update footer year automatically
+   */
+  const currentYearElement = document.getElementById('currentYear');
+  if (currentYearElement) {
+    currentYearElement.textContent = new Date().getFullYear();
+  }
+
 })()
