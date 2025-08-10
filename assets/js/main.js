@@ -1,5 +1,5 @@
 /**
-* Template Name: Gp
+* Template Name: Gp - Futuristic Enhanced
 * Updated: Jan 29 2024 with Bootstrap v5.3.2
 * Template URL: https://bootstrapmade.com/gp-free-multipurpose-html-bootstrap-template/
 * Author: BootstrapMade.com
@@ -42,7 +42,29 @@
   }
 
   /**
-   * Navbar links active state on scroll
+   * Scroll Animation Observer for Futuristic Effects
+   */
+  const animateOnScroll = () => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible')
+        }
+      })
+    }, {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    })
+
+    // Observe elements with scroll animation classes
+    const scrollElements = select('.scroll-animate, .scroll-animate-left, .scroll-animate-right, .scroll-animate-scale', true)
+    if (scrollElements) {
+      scrollElements.forEach(el => observer.observe(el))
+    }
+  }
+
+  /**
+   * Navbar links active state on scroll with futuristic effects
    */
   let navbarlinks = select('#navbar .scrollto', true)
   const navbarlinksActive = () => {
@@ -236,33 +258,63 @@
   });
 
   /**
-   * Porfolio isotope and filter
+   * Portfolio isotope and filter with enhanced effects
    */
   window.addEventListener('load', () => {
     let portfolioContainer = select('.portfolio-container');
     if (portfolioContainer) {
       let portfolioIsotope = new Isotope(portfolioContainer, {
-        itemSelector: '.portfolio-item'
+        itemSelector: '.portfolio-item',
+        layoutMode: 'fitRows',
+        transitionDuration: '0.6s'
       });
 
       let portfolioFilters = select('#portfolio-flters li', true);
 
+      // Enhanced filter functionality
       on('click', '#portfolio-flters li', function(e) {
         e.preventDefault();
-        portfolioFilters.forEach(function(el) {
-          el.classList.remove('filter-active');
-        });
-        this.classList.add('filter-active');
+        
+        // Add loading effect
+        this.style.transform = 'translateY(0) scale(0.98)';
+        
+        setTimeout(() => {
+          // Remove active class from all filters
+          portfolioFilters.forEach(function(el) {
+            el.classList.remove('filter-active');
+          });
+          
+          // Add active class to clicked filter
+          this.classList.add('filter-active');
 
-        portfolioIsotope.arrange({
-          filter: this.getAttribute('data-filter')
-        });
-        portfolioIsotope.on('arrangeComplete', function() {
-          AOS.refresh()
-        });
+          // Apply filter with smooth animation
+          portfolioIsotope.arrange({
+            filter: this.getAttribute('data-filter')
+          });
+          
+          // Refresh AOS animations after filtering
+          portfolioIsotope.on('arrangeComplete', function() {
+            AOS.refresh();
+          });
+          
+          // Reset transform
+          this.style.transform = '';
+        }, 100);
       }, true);
-    }
 
+      // Add hover sound effect (visual feedback)
+      portfolioFilters.forEach(filter => {
+        filter.addEventListener('mouseenter', function() {
+          this.style.transform = 'translateY(-3px) scale(1.05)';
+        });
+        
+        filter.addEventListener('mouseleave', function() {
+          if (!this.classList.contains('filter-active')) {
+            this.style.transform = '';
+          }
+        });
+      });
+    }
   });
 
   /**
@@ -332,4 +384,155 @@
     currentYearElement.textContent = new Date().getFullYear();
   }
 
-})()
+  /**
+   * Apple-style Footer Mobile Navigation
+   */
+  /**
+   * Enhanced Particle System for Hero Section
+   */
+  const createParticles = () => {
+    const heroSection = select('#hero')
+    if (!heroSection) return
+
+    const particleContainer = document.createElement('div')
+    particleContainer.className = 'hero-particles'
+    heroSection.appendChild(particleContainer)
+
+    for (let i = 0; i < 50; i++) {
+      const particle = document.createElement('div')
+      particle.className = 'particle'
+      particle.style.left = Math.random() * 100 + '%'
+      particle.style.top = Math.random() * 100 + '%'
+      particle.style.animationDelay = Math.random() * 20 + 's'
+      particle.style.animationDuration = (Math.random() * 10 + 10) + 's'
+      particleContainer.appendChild(particle)
+    }
+  }
+
+  /**
+   * Smooth scroll with easing for navigation links
+   */
+  const smoothScrollTo = (target, duration = 1000) => {
+    const targetElement = select(target)
+    if (!targetElement) return
+
+    const targetPosition = targetElement.offsetTop - 100
+    const startPosition = window.pageYOffset
+    const distance = targetPosition - startPosition
+    let startTime = null
+
+    function animation(currentTime) {
+      if (startTime === null) startTime = currentTime
+      const timeElapsed = currentTime - startTime
+      const run = easeInOutCubic(timeElapsed, startPosition, distance, duration)
+      window.scrollTo(0, run)
+      if (timeElapsed < duration) requestAnimationFrame(animation)
+    }
+
+    function easeInOutCubic(t, b, c, d) {
+      t /= d / 2
+      if (t < 1) return c / 2 * t * t * t + b
+      t -= 2
+      return c / 2 * (t * t * t + 2) + b
+    }
+
+    requestAnimationFrame(animation)
+  }
+
+  /**
+   * Dynamic Header Effects
+   */
+  const headerEffects = () => {
+    const header = select('#header')
+    if (!header) return
+
+    window.addEventListener('scroll', () => {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+      
+      if (scrollTop > 100) {
+        header.classList.add('header-scrolled')
+      } else {
+        header.classList.remove('header-scrolled')
+      }
+
+      // Keep header always visible
+      header.style.transform = 'translateY(0)'
+    })
+  }
+
+  /**
+   * Initialize all futuristic effects
+   */
+  const initFuturisticEffects = () => {
+    animateOnScroll()
+    createParticles()
+    headerEffects()
+
+    // Enhanced navigation clicks
+    navbarlinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault()
+        const target = link.getAttribute('href')
+        smoothScrollTo(target)
+        
+        // Close mobile menu if open
+        const navbar = select('#navbar')
+        if (navbar.classList.contains('navbar-mobile')) {
+          navbar.classList.remove('navbar-mobile')
+          select('.mobile-nav-toggle').classList.toggle('bi-list')
+          select('.mobile-nav-toggle').classList.toggle('bi-x')
+        }
+      })
+    })
+
+    // Add scroll animation classes to elements
+    const sectionsToAnimate = [
+      '.about .content',
+      '.services .icon-box',
+      '.portfolio .portfolio-item',
+      '.contact .contact-form'
+    ]
+
+    sectionsToAnimate.forEach(selector => {
+      const elements = select(selector, true)
+      if (elements) {
+        elements.forEach((el, index) => {
+          el.classList.add('scroll-animate')
+          el.style.animationDelay = (index * 0.1) + 's'
+        })
+      }
+    })
+  }
+
+  // Apple Footer Mobile Accordion Functionality
+  const footerButtons = document.querySelectorAll('#ac-globalfooter .ac-gf-directory-column-section-title-button');
+  
+  footerButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const section = this.closest('.ac-gf-directory-column-section');
+      const isExpanded = section.classList.contains('ac-gf-directory-column-expanded');
+      
+      // Close all other sections
+      footerButtons.forEach(otherButton => {
+        const otherSection = otherButton.closest('.ac-gf-directory-column-section');
+        if (otherSection !== section) {
+          otherSection.classList.remove('ac-gf-directory-column-expanded');
+          otherButton.setAttribute('aria-expanded', 'false');
+        }
+      });
+      
+      // Toggle current section
+      if (isExpanded) {
+        section.classList.remove('ac-gf-directory-column-expanded');
+        this.setAttribute('aria-expanded', 'false');
+      } else {
+        section.classList.add('ac-gf-directory-column-expanded');
+        this.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+
+  // Initialize futuristic effects when DOM is loaded
+  document.addEventListener('DOMContentLoaded', initFuturisticEffects)
+
+})() 
