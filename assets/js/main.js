@@ -532,7 +532,50 @@
     });
   });
 
+  /**
+   * Single Image Carousel Auto-play
+   */
+  const initSingleImageCarousel = () => {
+    const slides = document.querySelectorAll('.carousel-slide');
+    let currentSlide = 0;
+    
+    if (slides.length === 0) return;
+
+    // Function to show specific slide
+    const showSlide = (index) => {
+      // Remove active class from all slides
+      slides.forEach(slide => slide.classList.remove('active'));
+      
+      // Add active class to current slide
+      slides[index].classList.add('active');
+    };
+
+    // Auto-advance slides every 3 seconds
+    const autoAdvance = () => {
+      currentSlide = (currentSlide + 1) % slides.length;
+      showSlide(currentSlide);
+    };
+
+    // Set up auto-advance timer
+    let intervalId = setInterval(autoAdvance, 3000);
+
+    // Pause auto-advance on hover
+    const carousel = document.querySelector('.carousel-container');
+    if (carousel) {
+      carousel.addEventListener('mouseenter', () => {
+        clearInterval(intervalId);
+      });
+      
+      carousel.addEventListener('mouseleave', () => {
+        intervalId = setInterval(autoAdvance, 3000);
+      });
+    }
+  };
+
   // Initialize futuristic effects when DOM is loaded
-  document.addEventListener('DOMContentLoaded', initFuturisticEffects)
+  document.addEventListener('DOMContentLoaded', () => {
+    initFuturisticEffects();
+    initSingleImageCarousel();
+  });
 
 })() 
