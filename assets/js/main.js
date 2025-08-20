@@ -543,11 +543,24 @@
 
     // Function to show specific slide
     const showSlide = (index) => {
-      // Remove active class from all slides
-      slides.forEach(slide => slide.classList.remove('active'));
+      // Remove active class from all slides and pause videos
+      slides.forEach((slide, i) => {
+        slide.classList.remove('active');
+        const video = slide.querySelector('video');
+        if (video) {
+          if (i !== index) {
+            video.pause();
+          }
+        }
+      });
       
-      // Add active class to current slide
+      // Add active class to current slide and play video if it has one
       slides[index].classList.add('active');
+      const activeVideo = slides[index].querySelector('video');
+      if (activeVideo) {
+        activeVideo.currentTime = 0; // Restart video from beginning
+        activeVideo.play();
+      }
     };
 
     // Auto-advance slides every 3 seconds
@@ -572,10 +585,64 @@
     }
   };
 
+  /**
+   * Single Video Carousel Auto-play
+   */
+  const initSingleVideoCarousel = () => {
+    const videoSlides = document.querySelectorAll('.video-carousel-slide');
+    let currentVideoSlide = 0;
+    
+    if (videoSlides.length === 0) return;
+
+    // Function to show specific video slide
+    const showVideoSlide = (index) => {
+      // Remove active class from all video slides and pause videos
+      videoSlides.forEach((slide, i) => {
+        slide.classList.remove('active');
+        const video = slide.querySelector('video');
+        if (video) {
+          if (i !== index) {
+            video.pause();
+          }
+        }
+      });
+      
+      // Add active class to current video slide and play video
+      videoSlides[index].classList.add('active');
+      const activeVideo = videoSlides[index].querySelector('video');
+      if (activeVideo) {
+        activeVideo.currentTime = 0; // Restart video from beginning
+        activeVideo.play();
+      }
+    };
+
+    // Auto-advance video slides every 4 seconds
+    const autoAdvanceVideo = () => {
+      currentVideoSlide = (currentVideoSlide + 1) % videoSlides.length;
+      showVideoSlide(currentVideoSlide);
+    };
+
+    // Set up auto-advance timer for videos
+    let videoIntervalId = setInterval(autoAdvanceVideo, 4000);
+
+    // Pause auto-advance on hover for video carousel
+    const videoCarousel = document.querySelector('.video-carousel-container');
+    if (videoCarousel) {
+      videoCarousel.addEventListener('mouseenter', () => {
+        clearInterval(videoIntervalId);
+      });
+      
+      videoCarousel.addEventListener('mouseleave', () => {
+        videoIntervalId = setInterval(autoAdvanceVideo, 4000);
+      });
+    }
+  };
+
   // Initialize futuristic effects when DOM is loaded
   document.addEventListener('DOMContentLoaded', () => {
     initFuturisticEffects();
     initSingleImageCarousel();
+    initSingleVideoCarousel();
   });
 
 })() 

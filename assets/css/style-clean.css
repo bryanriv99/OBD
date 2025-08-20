@@ -2644,7 +2644,15 @@ section {
   transition: transform 0.8s ease;
 }
 
-.carousel-slide.active img {
+.carousel-slide video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s ease;
+}
+
+.carousel-slide.active img,
+.carousel-slide.active video {
   transform: scale(1.02);
 }
 
@@ -2657,6 +2665,73 @@ section {
 
 @media (max-width: 576px) {
   .carousel-container {
+    height: 350px;
+    border-radius: 15px;
+  }
+}
+
+/*--------------------------------------------------------------
+# Videos Section
+--------------------------------------------------------------*/
+.videos {
+  position: relative;
+  padding: 80px 0;
+}
+
+.single-video-carousel {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.video-carousel-container {
+  position: relative;
+  width: 100%;
+  height: 550px;
+  overflow: hidden;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+.video-carousel-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+  overflow: hidden;
+}
+
+.video-carousel-slide.active {
+  opacity: 1;
+}
+
+.video-carousel-slide video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s ease;
+}
+
+.video-carousel-slide.active video {
+  transform: scale(1.02);
+}
+
+/* Responsive adjustments for videos */
+@media (max-width: 768px) {
+  .video-carousel-container {
+    height: 400px;
+  }
+}
+
+@media (max-width: 576px) {
+  .video-carousel-container {
     height: 350px;
     border-radius: 15px;
   }
