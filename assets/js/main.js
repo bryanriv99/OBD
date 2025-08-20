@@ -533,13 +533,25 @@
   });
 
   /**
-   * Single Image Carousel Auto-play
+   * Single Image Carousel Auto-play with Responsive Features
    */
   const initSingleImageCarousel = () => {
     const slides = document.querySelectorAll('.carousel-slide');
     let currentSlide = 0;
+    let intervalId;
     
     if (slides.length === 0) return;
+
+    // Detect if user is on mobile device
+    const isMobile = window.innerWidth <= 768;
+    const isTablet = window.innerWidth <= 992 && window.innerWidth > 768;
+    
+    // Adjust timing based on device
+    const getTimingInterval = () => {
+      if (isMobile) return 4000; // Slower on mobile for better UX
+      if (isTablet) return 3500;
+      return 3000; // Default desktop timing
+    };
 
     // Function to show specific slide
     const showSlide = (index) => {
@@ -563,36 +575,84 @@
       }
     };
 
-    // Auto-advance slides every 3 seconds
+    // Auto-advance slides with responsive timing
     const autoAdvance = () => {
       currentSlide = (currentSlide + 1) % slides.length;
       showSlide(currentSlide);
     };
 
-    // Set up auto-advance timer
-    let intervalId = setInterval(autoAdvance, 3000);
+    // Initialize carousel with responsive timing
+    const startCarousel = () => {
+      clearInterval(intervalId);
+      intervalId = setInterval(autoAdvance, getTimingInterval());
+    };
 
-    // Pause auto-advance on hover
+    startCarousel();
+
+    // Pause auto-advance on hover (desktop) or touch start (mobile)
     const carousel = document.querySelector('.carousel-container');
     if (carousel) {
+      // Desktop hover events
       carousel.addEventListener('mouseenter', () => {
-        clearInterval(intervalId);
+        if (!isMobile) {
+          clearInterval(intervalId);
+        }
       });
       
       carousel.addEventListener('mouseleave', () => {
-        intervalId = setInterval(autoAdvance, 3000);
+        if (!isMobile) {
+          startCarousel();
+        }
+      });
+
+      // Mobile touch events
+      let touchStartTime;
+      carousel.addEventListener('touchstart', () => {
+        touchStartTime = Date.now();
+        clearInterval(intervalId);
+      });
+
+      carousel.addEventListener('touchend', () => {
+        const touchDuration = Date.now() - touchStartTime;
+        // Only restart if it was a quick touch (not a long press)
+        if (touchDuration < 500) {
+          setTimeout(startCarousel, 1000);
+        } else {
+          startCarousel();
+        }
       });
     }
+
+    // Handle window resize to adjust timing
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        startCarousel(); // Restart with new timing
+      }, 250);
+    });
   };
 
   /**
-   * Single Video Carousel Auto-play
+   * Single Video Carousel Auto-play with Responsive Features
    */
   const initSingleVideoCarousel = () => {
     const videoSlides = document.querySelectorAll('.video-carousel-slide');
     let currentVideoSlide = 0;
+    let videoIntervalId;
     
     if (videoSlides.length === 0) return;
+
+    // Detect device type for responsive behavior
+    const isMobile = window.innerWidth <= 768;
+    const isTablet = window.innerWidth <= 992 && window.innerWidth > 768;
+    
+    // Adjust video timing based on device
+    const getVideoTimingInterval = () => {
+      if (isMobile) return 5000; // Longer on mobile for video loading
+      if (isTablet) return 4500;
+      return 4000; // Default desktop timing
+    };
 
     // Function to show specific video slide
     const showVideoSlide = (index) => {
@@ -612,30 +672,96 @@
       const activeVideo = videoSlides[index].querySelector('video');
       if (activeVideo) {
         activeVideo.currentTime = 0; // Restart video from beginning
-        activeVideo.play();
+        
+        // Handle video loading on mobile devices
+        if (isMobile) {
+          // Preload the video before playing
+          activeVideo.load();
+          activeVideo.addEventListener('canplaythrough', () => {
+            activeVideo.play().catch(e => {
+              console.log('Video autoplay prevented:', e);
+            });
+          }, { once: true });
+        } else {
+          activeVideo.play().catch(e => {
+            console.log('Video autoplay prevented:', e);
+          });
+        }
       }
     };
 
-    // Auto-advance video slides every 4 seconds
+    // Auto-advance video slides with responsive timing
     const autoAdvanceVideo = () => {
       currentVideoSlide = (currentVideoSlide + 1) % videoSlides.length;
       showVideoSlide(currentVideoSlide);
     };
 
-    // Set up auto-advance timer for videos
-    let videoIntervalId = setInterval(autoAdvanceVideo, 4000);
+    // Initialize video carousel with responsive timing
+    const startVideoCarousel = () => {
+      clearInterval(videoIntervalId);
+      videoIntervalId = setInterval(autoAdvanceVideo, getVideoTimingInterval());
+    };
 
-    // Pause auto-advance on hover for video carousel
+    startVideoCarousel();
+
+    // Pause auto-advance on hover (desktop) or touch (mobile)
     const videoCarousel = document.querySelector('.video-carousel-container');
     if (videoCarousel) {
+      // Desktop hover events
       videoCarousel.addEventListener('mouseenter', () => {
-        clearInterval(videoIntervalId);
+        if (!isMobile) {
+          clearInterval(videoIntervalId);
+        }
       });
       
       videoCarousel.addEventListener('mouseleave', () => {
-        videoIntervalId = setInterval(autoAdvanceVideo, 4000);
+        if (!isMobile) {
+          startVideoCarousel();
+        }
+      });
+
+      // Mobile touch events for videos
+      let videoTouchStartTime;
+      videoCarousel.addEventListener('touchstart', () => {
+        videoTouchStartTime = Date.now();
+        clearInterval(videoIntervalId);
+      });
+
+      videoCarousel.addEventListener('touchend', () => {
+        const touchDuration = Date.now() - videoTouchStartTime;
+        // Longer delay for videos on mobile
+        if (touchDuration < 500) {
+          setTimeout(startVideoCarousel, 1500);
+        } else {
+          startVideoCarousel();
+        }
       });
     }
+
+    // Handle window resize for video carousel
+    let videoResizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(videoResizeTimeout);
+      videoResizeTimeout = setTimeout(() => {
+        startVideoCarousel(); // Restart with new timing
+      }, 250);
+    });
+
+    // Handle visibility change to pause videos when tab is not active
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        clearInterval(videoIntervalId);
+        // Pause all videos when tab is hidden
+        videoSlides.forEach(slide => {
+          const video = slide.querySelector('video');
+          if (video) video.pause();
+        });
+      } else {
+        // Resume when tab becomes visible
+        startVideoCarousel();
+        showVideoSlide(currentVideoSlide);
+      }
+    });
   };
 
   // Initialize futuristic effects when DOM is loaded
